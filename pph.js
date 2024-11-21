@@ -4,12 +4,14 @@ const port = 3000;
 
 app.use(express.json());
 
-app.post('/calculate-ter', (req, res) => {
+// PPH21 Calculator Line Start
+
+app.post('/calculate-pph21', (req, res) => {
     const { penghasilan, status, golongan} = req.body;
    
-    // if (typeof penghasilan !== 'number' || !status || !golongan) {
-    //     return res.status(400).json({ error: 'Tolong Masukan Angka' });
-    // }
+     if (typeof penghasilan !== 'number' ) {
+         return res.status(400).json({ error: 'Tolong Masukan Angka' });
+     }
     let aplicableRate = 0;
     let taxAmount = 0;
     let taxBracketUsed = 'no-bracket-used';
@@ -156,24 +158,41 @@ app.post('/calculate-ter', (req, res) => {
         case 'gross':
             if (golongan === 'TK/0' || golongan === 'K0' || golongan === 'TK/1') {
                 taxBracketUsed = 'terA';
-                // Calculate the applicable rate based on the income
-                aplicableRate = taxBrackets_terA.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
-                // Calculate the tax amount based on the applicable rate and income
-                taxAmount = penghasilan * aplicableRate;
+                if (penghasilan <= taxBrackets_terA[0].maxIncome){
+                    aplicableRate = 0;
+                }
+                else {
+                    // Calculate the applicable rate based on the income
+                    aplicableRate = taxBrackets_terA.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
+                }
+                 // Calculate the tax amount based on the applicable rate and income
+                 taxAmount = penghasilan * aplicableRate;
             } 
             else if (golongan === 'TK/2' || golongan === 'TK/3' || golongan === 'K/1' || golongan === 'K/2') {
-             taxBracketUsed = 'terB';
-                // Calculate the applicable rate based on the income
-             aplicableRate = taxBrackets_terB.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
-             // Calculate the tax amount based on the applicable rate and income
-             taxAmount = penghasilan * aplicableRate;
+                taxBracketUsed = 'terB';
+  
+                if (penghasilan <= taxBrackets_terB[0].maxIncome){
+                    aplicableRate = 0;
+                }
+                else {
+                    // Calculate the applicable rate based on the income
+                    aplicableRate = taxBrackets_terB.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
+                    // Calculate the tax amount based on the applicable rate and income
+                    taxAmount = penghasilan * aplicableRate;
+                }
+             
             }
             else if (golongan === 'K/3') {
                 taxBracketUsed = 'terC';
-                // Calculate the applicable rate based on the income
-             aplicableRate = taxBrackets_terC.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
-             // Calculate the tax amount based on the applicable rate and income
-             taxAmount = penghasilan * aplicableRate;
+                if (penghasilan <= taxBrackets_terC[0].maxIncome){
+                    aplicableRate = 0;
+                }
+                else{
+                    // Calculate the applicable rate based on the income
+                aplicableRate = taxBrackets_terC.find(bracket => penghasilan <= bracket.maxIncome)?.rate || 0.01;
+                }   
+                // Calculate the tax amount based on the applicable rate and income
+                taxAmount = penghasilan * aplicableRate;
             } 
             else {
                 console.log('invalid TER Segmentation');
@@ -227,4 +246,109 @@ app.post('/calculate-ter', (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
+});
+
+// end of line PPH 21 Calculator
+
+
+// Start of line PPH 22 Calculator
+
+app.post('/calculate-pph22', (req, res) => {
+    const { penghasilan, golongan, status} = req.body;
+   
+    let taxAmount = 0;
+
+    switch(golongan){
+        case (golongan == 'API' && golongan == 'semen'):
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.025;
+            }
+            else {
+                taxAmount = penghasilan * 0.05;
+            }
+            break;
+
+        case 'nonAPI':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.075;
+            }
+            else {
+                taxAmount = penghasilan * 0.15;
+            }
+            break;
+
+        case 'kedelai':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.005;
+            }
+            else {
+                taxAmount = penghasilan * 0.01;
+            }
+            break;
+            
+        case 'kertas':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.001;
+            }
+            else {
+                taxAmount = penghasilan * 0.002;
+            }
+            break;
+
+            
+        case 'baja':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.003;
+            }
+            else {
+                taxAmount = penghasilan * 0.006;
+            }
+            break;
+
+            
+        case 'otomotif':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.0045;
+            }
+            else {
+                taxAmount = penghasilan * 0.009;
+            }
+            break;
+            
+        case (golongan == 'perkebunan' && golongan == 'DJPB'):
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.015;
+            }
+            else {
+                taxAmount = penghasilan * 0.03;
+            }
+            break;   
+         
+        case (golongan == 'BBM' && golongan == 'noFinal BBM'):
+            taxAmount = 0;
+            break;
+            
+        case 'farmasi':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.03;
+            }
+            else {
+                taxAmount = penghasilan * 0.06;
+            }
+            break;
+
+            
+        case 'barangTertentu':
+            if (status == 'npwp'){
+                taxAmount = penghasilan * 0.05;
+            }
+            else {
+                taxAmount = penghasilan * 0.1;
+            }
+            break;
+        
+    }
+
+
+    res.json({taxAmount: taxAmount.toFixed(2)});
 });
