@@ -6,7 +6,7 @@ app.use(express.json());
 
 // PPH21 Calculator Line Start
 
-app.post('/calculate-pph21', (req, res) => {
+app.post('/pph21', (req, res) => {
     const { penghasilan, status, golongan} = req.body;
    
      if (typeof penghasilan !== 'number' ) {
@@ -253,7 +253,7 @@ app.listen(port, () => {
 
 // Start of line PPH 22 Calculator
 
-app.post('/calculate-pph22', (req, res) => {
+app.post('/pph22', (req, res) => {
     const { penghasilan, golongan, status} = req.body;
    
     let taxAmount = 0;
@@ -305,7 +305,6 @@ app.post('/calculate-pph22', (req, res) => {
             }
             break;
 
-            
         case 'otomotif':
             if (status == 'npwp'){
                 taxAmount = penghasilan * 0.0045;
@@ -352,3 +351,40 @@ app.post('/calculate-pph22', (req, res) => {
 
     res.json({taxAmount: taxAmount.toFixed(2)});
 });
+
+// PPH 15 Line Start
+
+app.post('/pph15', (req, res) => {
+    const { penghasilan, golongan} = req.body;
+   
+    let taxAmount = 0;
+
+    switch(golongan){
+       // 28-410-01 - Imbalan yang Diterima/Diperoleh Sehubungan dengan Pengangkutan Orang dan/atau Barang Termasuk Penyewaan Kapal Laut Oleh Perusahaan Pelayaran Dalam Negeri
+       // 28-410-02 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran Dalam Negeri
+       case (golongan == 'angkutOrang' && golongan == 'pelayaranDN'):
+          taxAmount = penghasilan * 0.012;
+        break;
+        //28-411-01 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri Sehubungan dengan Pengangkutan Orang dan/atau Barang (Selain aBerdasarkan Perjanjian Charter)
+        //28-411-02 - Imbalan Charter Kapal Laut dan/atau Pesawat Udara yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri melalui BUT di Indonesia
+        case (golongan == 'pelayaranLN' && golongan == 'pelayaranBUT'):
+          taxAmount = penghasilan * 0.0264;
+        break;
+
+        case 'LN Dagang':
+          taxAmount = penghasilan * 0.0044;
+        break;
+
+        case 'maklon':
+          taxAmount = penghasilan * 0.021;
+        break;
+
+        case 'carter':
+          taxAmount = penghasilan * 0.018;
+        break;
+        
+    }
+
+
+    res.json({kodeObjekPajak: golongan , taxAmount: taxAmount.toFixed(2)});
+})
