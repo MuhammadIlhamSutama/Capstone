@@ -255,6 +255,11 @@ app.listen(port, () => {
 
 app.post('/pph22', (req, res) => {
     const { penghasilan, golongan, status} = req.body;
+
+    // Check for zero or negative input for penghasilan
+    if (penghasilan <= 0) {
+        return res.status(400).json({ error: 'Penghasilan harus lebih besar dari 0' });
+    }
    
     let taxAmount = 0;
 
@@ -356,35 +361,45 @@ app.post('/pph22', (req, res) => {
 
 app.post('/pph15', (req, res) => {
     const { penghasilan, golongan} = req.body;
+
+    // Check for zero or negative input for penghasilan
+    if (penghasilan <= 0) {
+        return res.status(400).json({ error: 'Penghasilan harus lebih besar dari 0' });
+    }
    
     let taxAmount = 0;
+    let taxTotal = 0;
 
     switch(golongan){
        // 28-410-01 - Imbalan yang Diterima/Diperoleh Sehubungan dengan Pengangkutan Orang dan/atau Barang Termasuk Penyewaan Kapal Laut Oleh Perusahaan Pelayaran Dalam Negeri
        // 28-410-02 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran Dalam Negeri
        case (golongan == 'angkutOrang' && golongan == 'pelayaranDN'):
-          taxAmount = penghasilan * 0.012;
+          taxAmount = 0.012;
+          taxTotal = penghasilan * taxAmount;
         break;
         //28-411-01 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri Sehubungan dengan Pengangkutan Orang dan/atau Barang (Selain aBerdasarkan Perjanjian Charter)
         //28-411-02 - Imbalan Charter Kapal Laut dan/atau Pesawat Udara yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri melalui BUT di Indonesia
         case (golongan == 'pelayaranLN' && golongan == 'pelayaranBUT'):
-          taxAmount = penghasilan * 0.0264;
+          taxAmount = 0.0264;
+          taxTotal = penghasilan * taxAmount ;
         break;
 
         case 'LN Dagang':
-          taxAmount = penghasilan * 0.0044;
+          taxAmount = 0.0044
+          taxTotal = penghasilan * taxAmount;
         break;
 
         case 'maklon':
-          taxAmount = penghasilan * 0.021;
+          taxAmount = 0.021;
+          taxTotal = penghasilan * taxAmount;  
         break;
 
         case 'carter':
-          taxAmount = penghasilan * 0.018;
+          taxAmount = 0.018;
+          taxTotal = penghasilan * taxAmount; 
         break;
         
     }
 
-
-    res.json({kodeObjekPajak: golongan , taxAmount: taxAmount.toFixed(2)});
+    res.json({kodeObjekPajak: golongan , taxAmount: (taxAmount * 100) + ' %', taxTotal: taxTotal});
 })
