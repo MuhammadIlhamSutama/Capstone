@@ -438,7 +438,24 @@ app.post('/pph15', (req, res) => {
         
     }
 
-    res.json({kodeObjekPajak: golongan , taxAmount: (taxAmount * 100) + ' %', taxTotal: taxTotal});
+    res.json({kodeObjekPajak: golongan , taxAmount: (taxAmount * 100) + '%', taxTotal: taxTotal});
 })
 
 // end of line PPH15
+
+//start of line PPN 
+
+app.post('/ppn', (req, res) => {
+    const {penghasilan} = req.body;
+
+    const taxAmount = 0.11;
+    let taxTotal = 0;
+    let priceTotal = 0;
+
+    taxTotal = penghasilan * taxAmount;
+    priceTotal = taxTotal + penghasilan;
+
+    res.json({DPP: penghasilan , taxAmount: (taxAmount * 100) + '%', taxTotal: taxTotal, priceTotal : priceTotal});
+})
+
+// End of line PPN
