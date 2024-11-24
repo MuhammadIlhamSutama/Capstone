@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPH21 Tax Calculator</title>
+    <script>
+        async function calculateTax(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const penghasilan = parseFloat(document.getElementById('penghasilan').value);
+            const status = document.getElementById('status').value;
+            const golongan = document.getElementById('golongan').value;
+            
+            try {
+                const response = await fetch('http://localhost:3000/pph21', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ penghasilan, status, golongan })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                document.getElementById('result').innerText = `Tax Rate: ${result.response.ter}% | Tax Amount: ${result.response.taxAmount}`;
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>PPH21 Tax Calculator</h1>
+    <form onsubmit="calculateTax(event)">
+        <label for="penghasilan">Income: </label>
+        <input type="number" id="penghasilan" required><br><br>
+
+        <label for="status">Status: </label>
+        <select id="status" required>
+            <option value="gross">Gross</option>
+            <option value="gross up">Gross Up</option>
+        </select><br><br>
+
+        <label for="golongan">Tax Group: </label>
+        <select id="golongan" required>
+            <option value="TK/0">TK/0</option>
+            <option value="K0">K0</option>
+            <option value="TK/1">TK/1</option>
+            <option value="TK/2">TK/2</option>
+            <option value="K/1">K/1</option>
+            <option value="K/2">K/2</option>
+            <option value="K/3">K/3</option>
+        </select><br><br>
+
+        <button type="submit">Calculate Tax</button>
+    </form>
+    
+    <p id="result"></p>
+</body>
+</html>

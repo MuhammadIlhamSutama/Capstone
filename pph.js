@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
+app.use(cors());
 app.use(express.json());
 
 // PPH21 Calculator Line Start
@@ -229,24 +231,14 @@ app.post('/pph21', (req, res) => {
         // Add more cases for different statuses if necessary
     }
 
-    const response = {
-        taxBracketUsed // Include the used tax bracket in the response
-    };
-
-    // Format values only for the 'gross up' case
-    if (status === 'gross up') {
-        response.ter = (aplicableRate * 100).toFixed(3); // Convert to percentage and format to 2 decimal places
-        response.taxAmount = taxAmount.toFixed(3); // Format tax amount to 2 decimal places
-    } else {
-        response.ter = aplicableRate * 100; // Just return as is
-        response.taxAmount = taxAmount; // Just return as is
-    }
-    res.json({response});
+    res.json({  penghasilan : penghasilan,
+                taxBracketUsed : taxBracketUsed,
+                aplicableRate : aplicableRate,
+                taxAmount : taxAmount
+    });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+
 
 // end of line PPH 21 Calculator
 
@@ -392,8 +384,6 @@ app.post('/pph15', (req, res) => {
 // end of line PPH23
 
 
-
-
 // PPH 15 Line Start
 
 app.post('/pph15', (req, res) => {
@@ -410,13 +400,13 @@ app.post('/pph15', (req, res) => {
     switch(golongan){
        // 28-410-01 - Imbalan yang Diterima/Diperoleh Sehubungan dengan Pengangkutan Orang dan/atau Barang Termasuk Penyewaan Kapal Laut Oleh Perusahaan Pelayaran Dalam Negeri
        // 28-410-02 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran Dalam Negeri
-       case (golongan == 'angkutOrang' && golongan == 'pelayaranDN'):
+       case (golongan == 'angkutOrang' || golongan == 'pelayaranDN'):
           taxAmount = 0.012;
           taxTotal = penghasilan * taxAmount;
         break;
         //28-411-01 - Imbalan yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri Sehubungan dengan Pengangkutan Orang dan/atau Barang (Selain aBerdasarkan Perjanjian Charter)
         //28-411-02 - Imbalan Charter Kapal Laut dan/atau Pesawat Udara yang Dibayarkan/Terutang kepada Perusahaan Pelayaran dan/atau Penerbangan Luar Negeri melalui BUT di Indonesia
-        case (golongan == 'pelayaranLN' && golongan == 'pelayaranBUT'):
+        case (golongan == 'pelayaranLN' || golongan == 'pelayaranBUT'):
           taxAmount = 0.0264;
           taxTotal = penghasilan * taxAmount ;
         break;
@@ -459,3 +449,7 @@ app.post('/ppn', (req, res) => {
 })
 
 // End of line PPN
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
