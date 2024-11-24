@@ -357,6 +357,43 @@ app.post('/pph22', (req, res) => {
     res.json({taxAmount: taxAmount.toFixed(2)});
 });
 
+//start of line PPH 23
+
+app.post('/pph15', (req, res) => {
+    const { penghasilan, golongan} = req.body;
+
+    // Check for zero or negative input for penghasilan
+    if (penghasilan <= 0) {
+        return res.status(400).json({ error: 'Penghasilan harus lebih besar dari 0' });
+    }
+   
+    let taxAmount = 0.02;
+    let taxTotal = 0;
+
+    switch(golongan){
+      
+        default : 
+            taxAmount = 0.02;
+            taxTotal = penghasilan * taxAmount;
+        break;
+        case 'hadiah':
+        case 'bunga':
+        case 'royalti':
+        case 'dividen':
+            taxAmount = 0.15; // Set tax amount to 2%
+            taxTotal = penghasilan * taxAmount;
+        break;
+      
+    }
+
+    res.json({penghasilan: penghasilan, kodeObjekPajak: golongan , taxAmount: (taxAmount * 100) + '%', taxTotal: taxTotal});
+})
+
+// end of line PPH23
+
+
+
+
 // PPH 15 Line Start
 
 app.post('/pph15', (req, res) => {
@@ -403,3 +440,5 @@ app.post('/pph15', (req, res) => {
 
     res.json({kodeObjekPajak: golongan , taxAmount: (taxAmount * 100) + ' %', taxTotal: taxTotal});
 })
+
+// end of line PPH15
